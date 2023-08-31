@@ -8,10 +8,7 @@ function home(req, res) {
 }
 
 async function getIndicator(req, res) {
-    console.log(req.body);
     const { country: req_country, indicator: req_indicator } = req.body;
-    console.log(req_country);
-    console.log(req_indicator);
 
     // Check if the provided indicator is valid (exists in list)
     if (!indicators.includes(req_indicator)) {
@@ -20,7 +17,6 @@ async function getIndicator(req, res) {
 
     try {
         const data = await te.getHistoricalData(country = req_country, indicator = req_indicator);
-        console.log(data)
 
         // Remove meta item
         data.pop()
