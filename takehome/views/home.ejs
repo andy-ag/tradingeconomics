@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Take-home task - AA</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+<body class="d-flex flex-column align-items-center">
+    <div class="d-flex flex-column w-50 infobox align-items-center mt-5 p-3">
+        <h1>Explore economic indicators</h1>
+        <div class="d-flex gap-3">
+            <select id="countryDropdown" class="form-select">
+                <option value="" disabled selected>Select country</option>
+                <option value="mexico">Mexico</option>
+                <option value="new zealand">New Zealand</option>
+                <option value="sweden">Sweden</option>
+                <option value="thailand">Thailand</option>
+            </select>
+            <select id="indicatorDropdown" class="form-select">
+                <option value="" disabled selected>Select indicator</option>
+                <% indicators.forEach(indicator => { %>
+                    <option value="<%= indicator %>"><%= indicator %></option>
+                <% }) %>
+            </select>
+        </div>
+        <button id="fetchDataBtn" class="btn btn-primary mt-3">Fetch Data</button>
+        <div id="errorMessage" class="mt-2 alert alert-danger" style="display: none;"></div>
+        <div>
+            <div class="mt-3" id="plotlyDiv"></div>
+        </div>
+        <p>Select a country and an economic indicator to see a plot of the chosen data</p>
+    </div>
+    <script>
+        const countryDropdown = document.getElementById('countryDropdown');
+        const indicatorDropdown = document.getElementById('indicatorDropdown');
+        const fetchDataBtn = document.getElementById('fetchDataBtn');
+
+        fetchDataBtn.addEventListener('click', async function() {
+            const selectedCountry = countryDropdown.value;
+            const selectedIndicator = indicatorDropdown.value;
+
+            try {
+                const response = await fetch('/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        country: selectedCountry,
+                        indicator: selectedIndicator
+                    })
+                });
+
+                if (response.ok) {
+                    const plotlyData = await response.json();
+                    Plotly.newPlot('plotlyDiv', plotlyData);
+                    document.getElementById('errorMessage').style.display = 'none';  // Hide the error message
+                } else {
+                    const errorData = await response.json();
+                    const errorMessage = document.getElementById('errorMessage');
+                    errorMessage.textContent = errorData.error;
+                    errorMessage.style.display = 'block';  // Show the error message
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+
+
+    </script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</body>
+</html>
